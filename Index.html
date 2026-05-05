@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitud de Permisos - NOVATEKS SAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4fa;--white:#ffffff;--surface:#faf9ff;--border:#e4e1f0;
+  --accent:#6b46c1;--accent2:#8b5cf6;--accent-light:#ede9fe;
+  --accent-glow:rgba(107,70,193,0.12);--text:#1e1a2e;--text-muted:#6b6880;
+  --text-light:#9995b0;--success:#16a34a;--success-light:#dcfce7;
+  --error:#dc2626;--error-light:#fee2e2;
+  --shadow:0 1px 3px rgba(107,70,193,0.08),0 4px 16px rgba(107,70,193,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(107,70,193,0.06)}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-logo{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.topbar-name{font-size:14px;font-weight:700;color:var(--text)}
+.topbar-badge{font-size:11px;font-weight:600;color:var(--accent2);background:var(--accent-light);padding:4px 12px;border-radius:100px}
+.container{max-width:640px;margin:0 auto;padding:28px 16px 64px}
+.header{margin-bottom:24px}
+.header-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.header h1{font-size:clamp(22px,5vw,30px);font-weight:800;color:var(--text);line-height:1.2;letter-spacing:-0.02em;margin-bottom:6px}
+.header h1 span{color:var(--accent2)}
+.header p{font-size:13.5px;color:var(--text-muted);line-height:1.6}
+.progress-bar{height:4px;background:var(--border);border-radius:100px;margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;width:0%;transition:width 0.4s ease}
+
+/* Info card */
+.info-card{background:var(--accent-light);border:1px solid rgba(107,70,193,0.2);border-radius:18px;padding:20px 22px;margin-bottom:16px}
+.info-card-head{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.info-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.info-list li{font-size:12.5px;color:#4a3a7a;display:flex;align-items:flex-start;gap:10px;line-height:1.55}
+.info-list li .icon{flex-shrink:0;font-size:15px;margin-top:1px}
+.info-list li strong{color:#3b2d6e}
+
+/* Confidentiality */
+.conf-card{background:linear-gradient(135deg,rgba(107,70,193,0.06),rgba(139,92,246,0.04));border:1px solid rgba(107,70,193,0.15);border-radius:18px;padding:20px 22px;margin-bottom:16px}
+.conf-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.conf-text{font-size:12px;color:#5b4a8a;line-height:1.7}
+.conf-text p{margin-bottom:8px}
+.conf-text p:last-child{margin-bottom:0}
+
+/* Card */
+.card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:22px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px}
+.required{color:var(--accent2);margin-left:2px}
+.field-hint{font-size:11.5px;color:var(--text-muted);margin-bottom:7px;line-height:1.5;padding:8px 12px;background:#f8f7ff;border-left:3px solid var(--accent-light);border-radius:0 8px 8px 0}
+.field-hint strong{color:var(--accent)}
+
+/* Inputs */
+input[type=text],input[type=date],input[type=time],select,textarea{
+  width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;
+  padding:12px 14px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;outline:none;transition:all 0.2s ease;-webkit-appearance:none;appearance:none
+}
+input::placeholder,textarea::placeholder{color:var(--text-light)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px var(--accent-glow);background:var(--white)}
+input:disabled,select:disabled{background:#f0eef8;color:var(--text-muted);cursor:not-allowed}
+input[type=date]::-webkit-calendar-picker-indicator{opacity:0.4;cursor:pointer}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
+select option{background:white;color:var(--text)}
+textarea{resize:vertical;min-height:96px;line-height:1.6}
+
+/* Employee info row */
+.emp-info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.emp-info-field{background:#f8f7ff;border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.emp-info-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:3px}
+.emp-info-value{font-size:13px;font-weight:600;color:var(--text)}
+
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sub-label{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:5px;display:block}
+
+/* Accept */
+.accept-wrap{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--accent-light);border:1.5px solid rgba(107,70,193,0.2);border-radius:12px;cursor:pointer;transition:all 0.2s}
+.accept-wrap:hover{border-color:var(--accent2)}
+.accept-wrap input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent2);flex-shrink:0;margin-top:2px;cursor:pointer}
+.accept-text{font-size:12.5px;color:#5b4a8a;line-height:1.6}
+.accept-text strong{color:var(--accent)}
+
+/* Radio */
+.radio-group{display:flex;flex-direction:column;gap:8px}
+.radio-opt{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s}
+.radio-opt:hover,.radio-opt.active{border-color:var(--accent2);background:var(--accent-light)}
+.radio-opt input[type=radio]{accent-color:var(--accent2);width:16px;height:16px;flex-shrink:0}
+.radio-opt span{font-size:13.5px;font-weight:500;color:var(--text)}
+
+/* Upload */
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;background:var(--surface)}
+.upload-area:hover{border-color:var(--accent2);background:var(--accent-light)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:28px;margin-bottom:6px}
+.upload-main{font-size:13px;font-weight:600;color:var(--accent2)}
+.upload-sub{font-size:11.5px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+.upload-required{font-size:11px;font-weight:600;color:var(--error);margin-top:6px}
+
+/* Error / submit */
+.error-msg{display:none;background:var(--error-light);border:1px solid rgba(220,38,38,0.2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--error);margin-bottom:14px;font-weight:500}
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border:none;border-radius:14px;padding:17px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.25s ease;box-shadow:0 4px 16px rgba(107,70,193,0.3);letter-spacing:0.01em}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(107,70,193,0.4)}
+.submit-btn:disabled{opacity:0.7;pointer-events:none}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+
+/* Loading overlay */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(245,244,250,0.9);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin 0.8s linear infinite}
+.loading-text{font-size:14px;font-weight:600;color:var(--text-muted)}
+
+/* Success */
+.success-screen{display:none;text-align:center;padding:60px 20px}
+.success-icon-wrap{width:80px;height:80px;background:var(--success-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;animation:pop 0.5s ease both}
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.success-screen h2{font-size:26px;font-weight:800;color:var(--text);margin-bottom:10px}
+.success-screen p{font-size:14px;color:var(--text-muted);line-height:1.6}
+.success-screen p strong{color:var(--accent)}
+.new-request-btn{margin-top:24px;display:inline-block;padding:12px 28px;background:var(--accent-light);color:var(--accent);font-weight:700;font-size:14px;border-radius:12px;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s}
+.new-request-btn:hover{background:var(--accent);color:white}
+.footer{text-align:center;font-size:11px;color:var(--text-light);margin-top:28px}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.two-col{grid-template-columns:1fr}.emp-info-row{grid-template-columns:1fr}.card{padding:18px 14px}.topbar{padding:12px 16px}}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">Cargando empleados...</div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">🧵</div>
+    <span class="topbar-name">NOVATEKS SAS</span>
+  </div>
+  <span class="topbar-badge">Solicitud de Permisos</span>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-eyebrow">📋 Formulario Oficial · 2026</div>
+    <h1>Solicitud de<br><span>Permisos Laborales</span></h1>
+    <p>Diligencia este formulario con al menos <strong>3 días hábiles</strong> de anticipación.</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- Instrucciones -->
+  <div class="info-card">
+    <div class="info-card-head">📌 Instrucciones Importantes — Lee antes de continuar</div>
+    <ul class="info-list">
+      <li><span class="icon">📅</span><span><strong>Hazlo con tiempo:</strong> Para poder coordinar las tareas, por favor radica este formulario con al menos <strong>tres (3) días hábiles</strong> de anticipación.</span></li>
+      <li><span class="icon">🏥</span><span><strong>Citas Médicas:</strong> Tu salud es lo primero. Estos permisos serán autorizados de manera preferencial siempre y cuando sean citas con <strong>especialistas</strong>. Asegúrate de adjuntar el soporte o constancia de tu entidad de salud y notificarlo con suficiente anticipación.</span></li>
+      <li><span class="icon">💛</span><span><strong>Otros Motivos:</strong> Si necesitas el permiso para algo distinto a una cita médica, ¡cuéntanos! Estos casos entrarán en un proceso de <strong>revisión y análisis</strong> por parte de la empresa para ver cómo podemos ayudarte sin afectar la operación.</span></li>
+      <li><span class="icon">⏳</span><span><strong>Respuesta rápida:</strong> Ten presente que la radicación <strong>no significa</strong> una autorización automática. Nosotros te daremos una respuesta definitiva en un plazo máximo de <strong>dos (2) días hábiles</strong>.</span></li>
+    </ul>
+  </div>
+
+  <!-- Confidencialidad -->
+  <div class="conf-card">
+    <div class="conf-title">🔒 Compromiso de Confidencialidad</div>
+    <div class="conf-text">
+      <p>En <strong>NOVATEKS SAS</strong> respetamos tu privacidad. Toda la información y los soportes suministrados en este formulario serán tratados con absoluta <strong>confidencialidad</strong> y utilizados exclusivamente por el área administrativa, bajo el cumplimiento de la <strong>Ley 1581 de 2012 — Ley de Protección de Datos Personales</strong> de Colombia.</p>
+      <p>Al diligenciar y enviar este formulario, autorizas a NOVATEKS SAS para recolectar, almacenar y procesar tus datos personales con la única finalidad de gestionar tu solicitud de permiso laboral. Esta información no será compartida con terceros bajo ninguna circunstancia.</p>
+    </div>
+  </div>
+
+  <form id="permisoForm" novalidate>
+
+    <!-- Aceptación -->
+    <div class="card">
+      <div class="section-label">Compromiso y Aceptación</div>
+      <div class="field">
+        <div class="field-hint">Por favor lee detenidamente las instrucciones y la política de confidencialidad antes de aceptar y continuar con el formulario.</div>
+        <label class="accept-wrap" for="acepto">
+          <input type="checkbox" id="acepto" name="acepto">
+          <span class="accept-text">He leído, entendido y acepto las instrucciones del formulario y la <strong>Política de Confidencialidad y Tratamiento de Datos Personales de NOVATEKS SAS</strong>. Me comprometo a proporcionar información veraz y completa.</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Datos del Empleado -->
+    <div class="card">
+      <div class="section-label">👤 Datos del Empleado</div>
+      <div class="field">
+        <label for="nombreSelect">Nombre del Empleado <span class="required">*</span></label>
+        <div class="field-hint">Selecciona tu nombre de la lista desplegable. Si no apareces, comunícate con el área administrativa. <strong>No escribas tu nombre manualmente.</strong></div>
+        <select id="nombreSelect" name="nombreSelect" onchange="autoFillEmployee(this.value)">
+          <option value="" disabled selected>Cargando empleados...</option>
+        </select>
+      </div>
+      <!-- Info auto-rellenada -->
+      <div class="emp-info-row" id="empInfoRow" style="display:none">
+        <div class="emp-info-field">
+          <div class="emp-info-label">Cédula</div>
+          <div class="emp-info-value" id="empCC">—</div>
+        </div>
+        <div class="emp-info-field">
+          <div class="emp-info-label">EPS</div>
+          <div class="emp-info-value" id="empEPS">—</div>
+        </div>
+        <div class="emp-info-field">
+          <div class="emp-info-label">Tipo Contrato</div>
+          <div class="emp-info-value" id="empContrato">—</div>
+        </div>
+        <div class="emp-info-field">
+          <div class="emp-info-label">Código</div>
+          <div class="emp-info-value" id="empCod">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipo de Permiso -->
+    <div class="card">
+      <div class="section-label">🕐 Tipo de Permiso</div>
+      <div class="field">
+        <label>¿Tu permiso es por horas o por varios días? <span class="required">*</span></label>
+        <div class="field-hint">
+          <strong>Permiso por Horas o 1 Día:</strong> Si necesitas salir y regresar el mismo día, o si solo necesitas ausentarte 1 día completo.<br>
+          <strong>Permiso por Varios Días:</strong> Si necesitas ausentarte por 2 o más días continuos.
+        </div>
+        <div class="radio-group">
+          <label class="radio-opt" id="opt1" onclick="pickRadio('opt1','opt2','tipopermiso','Permiso por Horas o 1 Dia')">
+            <input type="radio" name="tipopermiso" value="Permiso por Horas o 1 Dia" id="t1">
+            <span>🕐 Permiso por Horas o 1 Día</span>
+          </label>
+          <label class="radio-opt" id="opt2" onclick="pickRadio('opt2','opt1','tipopermiso','Permiso por Varios Dias')">
+            <input type="radio" name="tipopermiso" value="Permiso por Varios Dias" id="t2">
+            <span>📅 Permiso por Varios Días</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fechas -->
+    <div class="card">
+      <div class="section-label">📅 Fechas del Permiso</div>
+      <div class="field">
+        <label>Fecha de Salida y Reingreso <span class="required">*</span></label>
+        <div class="field-hint">
+          ⏰ <strong>Si tu permiso es por horas:</strong> Indica la misma fecha en ambas casillas.<br>
+          📅 <strong>Si tu permiso es por días:</strong> Indica el rango completo — la fecha en que saldrías y la fecha en que regresarías a trabajar.
+        </div>
+        <div class="two-col">
+          <div>
+            <span class="sub-label">📤 Fecha de Salida</span>
+            <input type="date" id="fechaini" name="fechaini">
+          </div>
+          <div>
+            <span class="sub-label">📥 Fecha de Reingreso</span>
+            <input type="date" id="fechafin" name="fechafin">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horas -->
+    <div class="card">
+      <div class="section-label">⏰ Horas del Permiso</div>
+      <div class="field">
+        <label>Hora de Salida y Regreso <span class="required">*</span></label>
+        <div class="field-hint">
+          Usa <strong>formato de 24 horas</strong>. Ejemplos: 7:00, 13:30, 16:48<br>
+          🕐 <strong>Si el permiso es por HORAS:</strong> Registra la hora exacta en que sales y la hora en que vuelves a la empresa.<br>
+          📅 <strong>Si el permiso es por DÍAS:</strong> Ingresa como hora de salida <strong>7:00</strong> y como hora de regreso <strong>16:48</strong>.<br>
+          📌 <strong>Nota:</strong> Si tu permiso es antes de la hora de ingreso (llegas tarde), coloca <strong>7:00</strong> como hora de salida.
+        </div>
+        <div class="two-col">
+          <div>
+            <span class="sub-label">🚶 Hora de Salida</span>
+            <input type="time" id="horaini" name="horaini">
+          </div>
+          <div>
+            <span class="sub-label">🏭 Hora de Reingreso</span>
+            <input type="time" id="horafin" name="horafin">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motivo y Descripción -->
+    <div class="card">
+      <div class="section-label">📝 Motivo del Permiso</div>
+      <div class="field">
+        <label for="motivo">Motivo <span class="required">*</span></label>
+        <div class="field-hint">
+          Selecciona <strong>únicamente la opción que corresponda</strong> a tu requerimiento.<br>
+          ⚠️ <strong>Recordatorio importante:</strong> Para motivos médicos (Citas o Incapacidades), es <strong>OBLIGATORIO</strong> adjuntar el soporte legal o la constancia de tu entidad de salud para que la solicitud sea procesada. Sin este documento no podrá ser aprobada.
+        </div>
+        <select id="motivo" name="motivo" onchange="checkMotivoMedico()">
+          <option value="" disabled selected>Selecciona el motivo...</option>
+          <option value="Permiso Personal">👤 Permiso Personal</option>
+          <option value="Cita Medico General Jamundi">🏥 Cita Médico General Jamundí</option>
+          <option value="Cita Medico Especialista Cali">🩺 Cita Médico Especialista Cali</option>
+          <option value="Cita Medico Especialista Jamundi">🏥 Cita Médico Especialista Jamundí</option>
+          <option value="Incapacidad EPS">📄 Incapacidad EPS</option>
+          <option value="Incapacidad ARL">🛡️ Incapacidad ARL</option>
+          <option value="Licencia Remunerada">💰 Licencia Remunerada</option>
+          <option value="Licencia No Remunerada">🛑 Licencia No Remunerada</option>
+          <option value="Permiso Escolar">🎒 Permiso Escolar (Actividad de hijo/a)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="descripcion">Descripción del Permiso <span class="required">*</span></label>
+        <div class="field-hint">
+          Por favor brinda una breve pero <strong>completa explicación</strong> del motivo por el cual requieres el permiso. Esta información nos ayudará a dar una respuesta más ágil.<br>
+          💡 Ejemplo: <em>"Tengo cita médica con cardiología en la Clínica Valle del Lili en Cali a las 10am"</em>
+        </div>
+        <textarea id="descripcion" name="descripcion" placeholder="Escribe aquí los detalles de tu solicitud..."></textarea>
+      </div>
+
+      <!-- Adjunto -->
+      <div class="field">
+        <label>Adjuntar Soporte</label>
+        <div class="field-hint" id="adjuntoHint">
+          Recuerda cargar el soporte o justificante de tu permiso. <strong>Sin este documento la solicitud podría presentar retrasos en su análisis.</strong>
+        </div>
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="soporte" name="soporte" accept="image/*,.pdf" onchange="handleFile(this)">
+          <div class="upload-icon">📎</div>
+          <div class="upload-main">Toca aquí para adjuntar archivo</div>
+          <div class="upload-sub" id="uploadHint">Formatos aceptados: PDF, JPG, PNG · Máximo 10MB</div>
+          <div class="upload-required" id="uploadRequired" style="display:none">⚠️ Para este tipo de permiso el soporte es OBLIGATORIO</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">
+      Enviar Solicitud →
+    </button>
+
+  </form>
+
+  <!-- Success -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon-wrap">✅</div>
+    <h2>¡Solicitud Enviada!</h2>
+    <p>Tu solicitud de permiso ha sido registrada exitosamente en el sistema.<br>
+    Recibirás una respuesta en máximo <strong>2 días hábiles</strong>.<br><br>
+    Recuerda que radicar la solicitud <strong>no garantiza</strong> la aprobación automática.</p>
+    <button class="new-request-btn" onclick="resetForm()">Enviar otra solicitud</button>
+  </div>
+
+  <div class="footer">NOVATEKS SAS · Información confidencial · Solo uso administrativo · Ley 1581 de 2012</div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxI6M1S0XtZ6va-1mBpv3Mcnyj49QxkHVmUXzMyV4moZt3KhMAtGOvJ3LNmjho2XT4Nw/exec';
+
+
+let empleados = [];
+let selectedEmployee = null;
+
+// Cargar empleados al inicio
+async function loadEmpleados() {
+  const overlay = document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').textContent = 'Cargando empleados...';
+  overlay.classList.add('show');
+  try {
+    // Usamos JSONP para evitar CORS
+    const json = await new Promise((resolve, reject) => {
+      const callbackName = 'cb_' + Date.now();
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        reject(new Error('Timeout'));
+      }, 10000);
+      window[callbackName] = (data) => {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        document.body.removeChild(script);
+        resolve(data);
+      };
+      script.src = SCRIPT_URL + '?action=empleados&callback=' + callbackName;
+      script.onerror = () => { clearTimeout(timeout); reject(new Error('Script error')); };
+      document.body.appendChild(script);
+    });
+
+    if (json.status === 'ok' && json.empleados) {
+      empleados = json.empleados;
+      const sel = document.getElementById('nombreSelect');
+      sel.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
+      empleados.forEach((e, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = e.nombre;
+        sel.appendChild(opt);
+      });
+    } else {
+      throw new Error(json.msg || 'Error desconocido');
+    }
+  } catch(err) {
+    const sel = document.getElementById('nombreSelect');
+    sel.innerHTML = '<option value="" disabled selected>Error cargando lista</option>';
+    const fallback = document.createElement('input');
+    fallback.type = 'text';
+    fallback.id = 'nombreFallback';
+    fallback.name = 'nombreFallback';
+    fallback.placeholder = 'Escribe tu nombre completo';
+    fallback.style.cssText = 'width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;outline:none;margin-top:8px';
+    sel.parentNode.insertBefore(fallback, sel.nextSibling);
+  } finally {
+    overlay.classList.remove('show');
+  }
+}
+
+function autoFillEmployee(idx) {
+  if (idx === '' || idx === null) return;
+  selectedEmployee = empleados[parseInt(idx)];
+  document.getElementById('empCC').textContent = selectedEmployee.cc || '—';
+  document.getElementById('empEPS').textContent = selectedEmployee.eps || '—';
+  document.getElementById('empContrato').textContent = selectedEmployee.contrato || '—';
+  document.getElementById('empCod').textContent = selectedEmployee.cod || '—';
+  document.getElementById('empInfoRow').style.display = 'grid';
+  updateProgress();
+}
+
+// Motivos médicos que requieren soporte obligatorio
+const motivosMedicos = ['Cita Medico General Jamundi','Cita Medico Especialista Cali','Cita Medico Especialista Jamundi','Incapacidad EPS','Incapacidad ARL'];
+
+function checkMotivoMedico() {
+  const motivo = document.getElementById('motivo').value;
+  const reqEl = document.getElementById('uploadRequired');
+  const areaEl = document.getElementById('uploadArea');
+  if (motivosMedicos.includes(motivo)) {
+    reqEl.style.display = 'block';
+    areaEl.style.borderColor = 'var(--error)';
+  } else {
+    reqEl.style.display = 'none';
+    areaEl.style.borderColor = '';
+  }
+  updateProgress();
+}
+
+// Progress
+function updateProgress() {
+  let f = 0;
+  if (document.getElementById('acepto').checked) f++;
+  if (document.getElementById('nombreSelect').value !== '') f++;
+  if (document.querySelector('input[name="tipopermiso"]:checked')) f++;
+  if (document.getElementById('fechaini').value) f++;
+  if (document.getElementById('fechafin').value) f++;
+  if (document.getElementById('horaini').value) f++;
+  if (document.getElementById('horafin').value) f++;
+  if (document.getElementById('motivo').value) f++;
+  if (document.getElementById('descripcion').value.trim()) f++;
+  document.getElementById('progressFill').style.width = Math.round(f / 9 * 100) + '%';
+}
+
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('change', updateProgress);
+  el.addEventListener('input', updateProgress);
+});
+
+function pickRadio(a, b, n, v) {
+  document.getElementById(a).classList.add('active');
+  document.getElementById(b).classList.remove('active');
+  document.querySelector('input[name="' + n + '"][value="' + v + '"]').checked = true;
+  updateProgress();
+}
+
+function handleFile(input) {
+  const hint = document.getElementById('uploadHint');
+  const area = document.getElementById('uploadArea');
+  if (input.files && input.files[0]) {
+    const size = (input.files[0].size / 1024 / 1024).toFixed(1);
+    hint.innerHTML = '✅ <strong>' + input.files[0].name + '</strong> (' + size + ' MB)';
+    hint.style.color = 'var(--success)';
+    area.style.borderColor = 'var(--success)';
+    area.style.borderStyle = 'solid';
+  }
+}
+
+// Convert file to base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function resetForm() {
+  document.getElementById('permisoForm').reset();
+  document.getElementById('permisoForm').style.display = 'block';
+  document.querySelector('.info-card').style.display = 'block';
+  document.querySelector('.conf-card').style.display = 'block';
+  document.getElementById('successScreen').style.display = 'none';
+  document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('active'));
+  document.getElementById('uploadHint').innerHTML = 'Formatos aceptados: PDF, JPG, PNG · Máximo 10MB';
+  document.getElementById('uploadHint').style.color = '';
+  document.getElementById('uploadArea').style.borderColor = '';
+  document.getElementById('uploadArea').style.borderStyle = '';
+  document.getElementById('uploadRequired').style.display = 'none';
+  document.getElementById('empInfoRow').style.display = 'none';
+  document.getElementById('progressFill').style.width = '0%';
+  selectedEmployee = null;
+}
+
+// Submit
+document.getElementById('permisoForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const err = document.getElementById('errorMsg');
+  err.style.display = 'none';
+
+  if (!document.getElementById('acepto').checked) {
+    err.textContent = '⚠️ Debes leer y aceptar las instrucciones y la política de confidencialidad para continuar.';
+    err.style.display = 'block'; return;
+  }
+  if (!document.getElementById('nombreSelect').value) {
+    err.textContent = '⚠️ Por favor selecciona tu nombre de la lista.';
+    err.style.display = 'block'; return;
+  }
+  if (!document.querySelector('input[name="tipopermiso"]:checked')) {
+    err.textContent = '⚠️ Selecciona el tipo de permiso (horas o varios días).';
+    err.style.display = 'block'; return;
+  }
+  if (!document.getElementById('fechaini').value || !document.getElementById('fechafin').value) {
+    err.textContent = '⚠️ Indica las fechas de salida y reingreso del permiso.';
+    err.style.display = 'block'; return;
+  }
+  if (!document.getElementById('horaini').value || !document.getElementById('horafin').value) {
+    err.textContent = '⚠️ Indica las horas de salida y reingreso.';
+    err.style.display = 'block'; return;
+  }
+  if (!document.getElementById('motivo').value) {
+    err.textContent = '⚠️ Selecciona el motivo del permiso.';
+    err.style.display = 'block'; return;
+  }
+  if (!document.getElementById('descripcion').value.trim()) {
+    err.textContent = '⚠️ Escribe una descripción del permiso.';
+    err.style.display = 'block'; return;
+  }
+
+  // Validar soporte obligatorio para motivos médicos
+  const motivo = document.getElementById('motivo').value;
+  const soporteFile = document.getElementById('soporte').files[0];
+  if (motivosMedicos.includes(motivo) && !soporteFile) {
+    err.textContent = '⚠️ Para este motivo es OBLIGATORIO adjuntar el soporte médico.';
+    err.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Enviando...';
+
+  const overlay = document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').textContent = 'Enviando solicitud...';
+  overlay.classList.add('show');
+
+  try {
+    // Convert file if present
+    let fileData = null, fileName = null, fileType = null;
+    if (soporteFile) {
+      document.getElementById('loadingText').textContent = 'Subiendo soporte a Drive...';
+      fileData = await fileToBase64(soporteFile);
+      fileName = soporteFile.name;
+      fileType = soporteFile.type;
+    }
+
+    const emp = selectedEmployee || {};
+    const data = {
+      timestamp: new Date().toLocaleString('es-CO', {timeZone: 'America/Bogota'}),
+      cod: emp.cod || '',
+      nombre: emp.nombre || '',
+      cc: emp.cc || '',
+      eps: emp.eps || '',
+      contrato: emp.contrato || '',
+      tipopermiso: document.querySelector('input[name="tipopermiso"]:checked').value,
+      fechaini: document.getElementById('fechaini').value,
+      fechafin: document.getElementById('fechafin').value,
+      horaini: document.getElementById('horaini').value,
+      horafin: document.getElementById('horafin').value,
+      motivo: motivo,
+      descripcion: document.getElementById('descripcion').value.trim(),
+      fileData: fileData,
+      fileName: fileName,
+      fileType: fileType
+    };
+
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+
+    overlay.classList.remove('show');
+    document.getElementById('permisoForm').style.display = 'none';
+    document.querySelector('.info-card').style.display = 'none';
+    document.querySelector('.conf-card').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    document.getElementById('progressFill').style.width = '100%';
+
+  } catch(error) {
+    overlay.classList.remove('show');
+    err.textContent = '❌ Error al enviar. Intenta de nuevo o comunícate con el área administrativa.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Enviar Solicitud →';
+  }
+});
+
+// Init
+loadEmpleados();
+</script>
+</body>
+</html>
