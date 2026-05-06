@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://script.google.com https://script.googleusercontent.com;">
 <title>Solicitud de Permisos - NOVATEKS SAS</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -381,14 +382,14 @@ async function loadEmpleados() {
         delete window[callbackName];
         document.body.removeChild(script);
         reject(new Error('Timeout'));
-      }, 10000);
+      }, 15000);
       window[callbackName] = (data) => {
         clearTimeout(timeout);
         delete window[callbackName];
         document.body.removeChild(script);
         resolve(data);
       };
-      script.src = SCRIPT_URL + '?action=empleados&callback=' + callbackName;
+      script.src = SCRIPT_URL + '?callback=' + callbackName;
       script.onerror = () => { clearTimeout(timeout); reject(new Error('Script error')); };
       document.body.appendChild(script);
     });
