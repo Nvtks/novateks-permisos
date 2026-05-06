@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://script.google.com https://script.googleusercontent.com;">
+
 <title>Solicitud de Permisos - NOVATEKS SAS</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -373,53 +373,70 @@ async function loadEmpleados() {
   const overlay = document.getElementById('loadingOverlay');
   document.getElementById('loadingText').textContent = 'Cargando empleados...';
   overlay.classList.add('show');
-  try {
-    // Usamos JSONP para evitar CORS
-    const json = await new Promise((resolve, reject) => {
-      const callbackName = 'cb_' + Date.now();
+
+  // Intentar JSONP con varios timeouts y reintentos
+  async function tryJSONP() {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       const script = document.createElement('script');
       const timeout = setTimeout(() => {
-        delete window[callbackName];
-        document.body.removeChild(script);
+        try { delete window[callbackName]; document.body.removeChild(script); } catch(e) {}
         reject(new Error('Timeout'));
-      }, 15000);
+      }, 20000);
       window[callbackName] = (data) => {
         clearTimeout(timeout);
-        delete window[callbackName];
-        document.body.removeChild(script);
+        try { delete window[callbackName]; document.body.removeChild(script); } catch(e) {}
         resolve(data);
       };
-      script.src = SCRIPT_URL + '?callback=' + callbackName;
-      script.onerror = () => { clearTimeout(timeout); reject(new Error('Script error')); };
+      script.src = SCRIPT_URL + '?callback=' + callbackName + '&t=' + Date.now();
+      script.onerror = () => { 
+        clearTimeout(timeout); 
+        try { document.body.removeChild(script); } catch(e) {}
+        reject(new Error('Script error')); 
+      };
       document.body.appendChild(script);
     });
-
-    if (json.status === 'ok' && json.empleados) {
-      empleados = json.empleados;
-      const sel = document.getElementById('nombreSelect');
-      sel.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
-      empleados.forEach((e, i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = e.nombre;
-        sel.appendChild(opt);
-      });
-    } else {
-      throw new Error(json.msg || 'Error desconocido');
-    }
-  } catch(err) {
-    const sel = document.getElementById('nombreSelect');
-    sel.innerHTML = '<option value="" disabled selected>Error cargando lista</option>';
-    const fallback = document.createElement('input');
-    fallback.type = 'text';
-    fallback.id = 'nombreFallback';
-    fallback.name = 'nombreFallback';
-    fallback.placeholder = 'Escribe tu nombre completo';
-    fallback.style.cssText = 'width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;outline:none;margin-top:8px';
-    sel.parentNode.insertBefore(fallback, sel.nextSibling);
-  } finally {
-    overlay.classList.remove('show');
   }
+
+  let json = null;
+  let lastErr = null;
+  
+  // Reintentar hasta 3 veces
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      json = await tryJSONP();
+      break;
+    } catch(e) {
+      lastErr = e;
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+
+  if (json && json.status === 'ok' && json.empleados) {
+    empleados = json.empleados;
+    const sel = document.getElementById('nombreSelect');
+    sel.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
+    empleados.forEach((e, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = e.nombre;
+      sel.appendChild(opt);
+    });
+  } else {
+    const sel = document.getElementById('nombreSelect');
+    sel.innerHTML = '<option value="" disabled selected>No se pudo cargar — escribe tu nombre</option>';
+    if (!document.getElementById('nombreFallback')) {
+      const fallback = document.createElement('input');
+      fallback.type = 'text';
+      fallback.id = 'nombreFallback';
+      fallback.name = 'nombreFallback';
+      fallback.placeholder = 'Escribe tu nombre completo';
+      fallback.style.cssText = 'width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;outline:none;margin-top:8px';
+      sel.parentNode.insertBefore(fallback, sel.nextSibling);
+    }
+  }
+  
+  overlay.classList.remove('show');
 }
 
 function autoFillEmployee(idx) {
@@ -597,11 +614,39 @@ document.getElementById('permisoForm').addEventListener('submit', async function
       fileType: fileType
     };
 
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(data)
+    // Submit via form to avoid CORS
+    await new Promise((resolve, reject) => {
+      const iframe = document.createElement('iframe');
+      iframe.name = 'submit_iframe_' + Date.now();
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = SCRIPT_URL;
+      form.target = iframe.name;
+      form.style.display = 'none';
+      
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'data';
+      input.value = JSON.stringify(data);
+      form.appendChild(input);
+      
+      document.body.appendChild(form);
+      
+      const timeout = setTimeout(() => {
+        try { document.body.removeChild(form); document.body.removeChild(iframe); } catch(e) {}
+        resolve();
+      }, 8000);
+      
+      iframe.onload = () => {
+        clearTimeout(timeout);
+        try { document.body.removeChild(form); document.body.removeChild(iframe); } catch(e) {}
+        resolve();
+      };
+      
+      form.submit();
     });
 
     overlay.classList.remove('show');
