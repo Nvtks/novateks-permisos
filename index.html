@@ -48,6 +48,7 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
 
 /* Card */
 .card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:22px 20px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card.hidden{display:none}
 .section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent2);margin-bottom:16px;display:flex;align-items:center;gap:6px}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
 .field{margin-bottom:16px}
@@ -58,7 +59,7 @@ label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bott
 .field-hint strong{color:var(--accent)}
 
 /* Inputs */
-input[type=text],input[type=date],input[type=time],select,textarea{
+input[type=text],input[type=date],input[type=time],input[type=tel],select,textarea{
   width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;
   padding:12px 14px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;
   font-size:14px;outline:none;transition:all 0.2s ease;-webkit-appearance:none;appearance:none
@@ -70,6 +71,26 @@ input[type=date]::-webkit-calendar-picker-indicator{opacity:0.4;cursor:pointer}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
 select option{background:white;color:var(--text)}
 textarea{resize:vertical;min-height:96px;line-height:1.6}
+
+/* Cédula search results */
+.cedula-results{margin-top:8px;display:none;background:var(--white);border:1.5px solid var(--border);border-radius:12px;max-height:240px;overflow-y:auto;box-shadow:0 4px 16px rgba(107,70,193,0.08)}
+.cedula-results.show{display:block}
+.cedula-result-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cedula-result-item:last-child{border-bottom:none}
+.cedula-result-item:hover,.cedula-result-item:focus{background:var(--accent-light);outline:none}
+.cedula-result-item .cc-num{font-size:14.5px;font-weight:600;color:var(--text);letter-spacing:0.02em;font-variant-numeric:tabular-nums}
+.cedula-result-item .cc-pick{font-size:11px;font-weight:700;color:var(--accent2);background:var(--accent-light);padding:4px 10px;border-radius:100px}
+.cedula-empty{padding:16px;font-size:12.5px;color:var(--text-muted);text-align:center}
+
+/* Cédula confirmed */
+.cedula-confirmed{margin-top:10px;background:var(--success-light);border:1.5px solid rgba(22,163,74,0.3);border-radius:12px;padding:14px 16px;display:none;align-items:center;gap:12px}
+.cedula-confirmed.show{display:flex}
+.cedula-confirmed .check-icon{font-size:22px;flex-shrink:0}
+.cedula-confirmed .conf-body{flex:1;min-width:0}
+.cedula-confirmed .conf-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#15803d;margin-bottom:2px}
+.cedula-confirmed .conf-name{font-size:14px;font-weight:700;color:#14532d;line-height:1.3;word-wrap:break-word}
+.change-btn{background:transparent;border:1.5px solid #15803d;color:#15803d;font-family:'Plus Jakarta Sans',sans-serif;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+.change-btn:hover{background:#15803d;color:#fff}
 
 /* Employee info row */
 .emp-info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -137,7 +158,7 @@ textarea{resize:vertical;min-height:96px;line-height:1.6}
 <!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text" id="loadingText">Cargando empleados...</div>
+  <div class="loading-text" id="loadingText">Procesando...</div>
 </div>
 
 <!-- Top bar -->
@@ -195,13 +216,26 @@ textarea{resize:vertical;min-height:96px;line-height:1.6}
 
     <!-- Datos del Empleado -->
     <div class="card">
-      <div class="section-label">👤 Datos del Empleado</div>
+      <div class="section-label">🔐 Identificación del Empleado</div>
       <div class="field">
-        <label for="nombreSelect">Nombre del Empleado <span class="required">*</span></label>
-        <div class="field-hint">Selecciona tu nombre de la lista desplegable. Si no apareces, comunícate con el área administrativa. <strong>No escribas tu nombre manualmente.</strong></div>
-        <select id="nombreSelect" name="nombreSelect" onchange="autoFillEmployee(this.value)">
-          <option value="" disabled selected>Cargando empleados...</option>
-        </select>
+        <label for="cedulaInput">Número de Cédula <span class="required">*</span></label>
+        <div class="field-hint">
+          Digita los números de tu <strong>cédula de ciudadanía</strong>. A medida que escribas, aparecerán las coincidencias para que selecciones la tuya.<br>
+          🔒 <strong>Por protección de datos no mostramos nombres en la lista.</strong> Solo verás tu nombre una vez selecciones tu cédula, para que confirmes que es la correcta.
+        </div>
+        <input type="tel" id="cedulaInput" inputmode="numeric" autocomplete="off"
+               placeholder="Ej: 1112483777"
+               oninput="searchByCedula(this.value)"
+               onfocus="searchByCedula(this.value)">
+        <div id="cedulaResults" class="cedula-results"></div>
+        <div id="cedulaConfirmed" class="cedula-confirmed">
+          <div class="check-icon">✅</div>
+          <div class="conf-body">
+            <div class="conf-label">Confirmado — eres tú</div>
+            <div class="conf-name" id="confirmedName">—</div>
+          </div>
+          <button type="button" class="change-btn" onclick="clearSelection()">Cambiar</button>
+        </div>
       </div>
       <!-- Info auto-rellenada -->
       <div class="emp-info-row" id="empInfoRow" style="display:none">
@@ -234,11 +268,11 @@ textarea{resize:vertical;min-height:96px;line-height:1.6}
           <strong>Permiso por Varios Días:</strong> Si necesitas ausentarte por 2 o más días continuos.
         </div>
         <div class="radio-group">
-          <label class="radio-opt" id="opt1" onclick="pickRadio('opt1','opt2','tipopermiso','Permiso por Horas o 1 Dia')">
+          <label class="radio-opt" id="opt1" onclick="pickTipoPermiso('Permiso por Horas o 1 Dia')">
             <input type="radio" name="tipopermiso" value="Permiso por Horas o 1 Dia" id="t1">
             <span>🕐 Permiso por Horas o 1 Día</span>
           </label>
-          <label class="radio-opt" id="opt2" onclick="pickRadio('opt2','opt1','tipopermiso','Permiso por Varios Dias')">
+          <label class="radio-opt" id="opt2" onclick="pickTipoPermiso('Permiso por Varios Dias')">
             <input type="radio" name="tipopermiso" value="Permiso por Varios Dias" id="t2">
             <span>📅 Permiso por Varios Días</span>
           </label>
@@ -246,47 +280,56 @@ textarea{resize:vertical;min-height:96px;line-height:1.6}
       </div>
     </div>
 
-    <!-- Fechas -->
-    <div class="card">
-      <div class="section-label">📅 Fechas del Permiso</div>
-      <div class="field">
+    <!-- Fechas — visible para AMBOS tipos, pero los campos cambian -->
+    <div class="card hidden" id="fechasCard">
+      <div class="section-label" id="fechasLabel">📅 Fecha del Permiso</div>
+
+      <!-- Caso HORAS: solo fecha de salida -->
+      <div class="field" id="fechaSingleField" style="display:none">
+        <label for="fechaini_single">Fecha del Permiso <span class="required">*</span></label>
+        <div class="field-hint">
+          📅 Indica el día en que necesitas el permiso. <strong>La fecha de reingreso es la misma</strong> ya que regresarás el mismo día.
+        </div>
+        <input type="date" id="fechaini_single">
+      </div>
+
+      <!-- Caso DÍAS: rango de fechas -->
+      <div class="field" id="fechaRangeField" style="display:none">
         <label>Fecha de Salida y Reingreso <span class="required">*</span></label>
         <div class="field-hint">
-          ⏰ <strong>Si tu permiso es por horas:</strong> Indica la misma fecha en ambas casillas.<br>
-          📅 <strong>Si tu permiso es por días:</strong> Indica el rango completo — la fecha en que saldrías y la fecha en que regresarías a trabajar.
+          📅 Indica el rango completo: la fecha en que saldrías y la fecha en que regresarías a trabajar.
         </div>
         <div class="two-col">
           <div>
             <span class="sub-label">📤 Fecha de Salida</span>
-            <input type="date" id="fechaini" name="fechaini">
+            <input type="date" id="fechaini_range">
           </div>
           <div>
             <span class="sub-label">📥 Fecha de Reingreso</span>
-            <input type="date" id="fechafin" name="fechafin">
+            <input type="date" id="fechafin_range">
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Horas -->
-    <div class="card">
+    <!-- Horas — solo visible para permiso por HORAS -->
+    <div class="card hidden" id="horasCard">
       <div class="section-label">⏰ Horas del Permiso</div>
       <div class="field">
         <label>Hora de Salida y Regreso <span class="required">*</span></label>
         <div class="field-hint">
           Usa <strong>formato de 24 horas</strong>. Ejemplos: 7:00, 13:30, 16:48<br>
-          🕐 <strong>Si el permiso es por HORAS:</strong> Registra la hora exacta en que sales y la hora en que vuelves a la empresa.<br>
-          📅 <strong>Si el permiso es por DÍAS:</strong> Ingresa como hora de salida <strong>7:00</strong> y como hora de regreso <strong>16:48</strong>.<br>
+          🕐 Registra la hora exacta en que sales y la hora en que vuelves a la empresa.<br>
           📌 <strong>Nota:</strong> Si tu permiso es antes de la hora de ingreso (llegas tarde), coloca <strong>7:00</strong> como hora de salida.
         </div>
         <div class="two-col">
           <div>
             <span class="sub-label">🚶 Hora de Salida</span>
-            <input type="time" id="horaini" name="horaini">
+            <input type="time" id="horaini">
           </div>
           <div>
             <span class="sub-label">🏭 Hora de Reingreso</span>
-            <input type="time" id="horafin" name="horafin">
+            <input type="time" id="horafin">
           </div>
         </div>
       </div>
@@ -364,267 +407,48 @@ textarea{resize:vertical;min-height:96px;line-height:1.6}
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxI6M1S0XtZ6va-1mBpv3Mcnyj49QxkHVmUXzMyV4moZt3KhMAtGOvJ3LNmjho2XT4Nw/exec';
 
-
 let empleados = [];
 let selectedEmployee = null;
+let tipoPermisoActual = null;
 
-// Cargar empleados al inicio
+// Lista embebida de empleados (fallback)
 const EMPLEADOS_EMBEBIDOS = [
-  {
-    "cod": "34",
-    "nombre": "Adriana Yazmith Babativa Gil",
-    "tipoDoc": "CC",
-    "cc": "28820940",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "32",
-    "nombre": "Alejandro Sanchez Lopez",
-    "tipoDoc": "CC",
-    "cc": "16845295",
-    "contrato": "LABORAL",
-    "eps": "EPS SURA"
-  },
-  {
-    "cod": "45",
-    "nombre": "Ana Milena Gomez",
-    "tipoDoc": "CC",
-    "cc": "60393202",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "50",
-    "nombre": "Bety Maritza Ortiz Valencia",
-    "tipoDoc": "CC",
-    "cc": "1089542622",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "31",
-    "nombre": "Bladimir Olmos Echeverry",
-    "tipoDoc": "CC",
-    "cc": "16847161",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "6",
-    "nombre": "Diana Mileydi Ordoñez Benitez",
-    "tipoDoc": "CC",
-    "cc": "1143962107",
-    "contrato": "LABORAL",
-    "eps": "EPS SURA"
-  },
-  {
-    "cod": "70",
-    "nombre": "Doris Rodriguez Chavez",
-    "tipoDoc": "CC",
-    "cc": "31525311",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "29",
-    "nombre": "Edwin Vivas Campo",
-    "tipoDoc": "CC",
-    "cc": "1112479499",
-    "contrato": "LABORAL",
-    "eps": "COMFENALCO"
-  },
-  {
-    "cod": "33",
-    "nombre": "Harry Fernando Murillo Mosquera",
-    "tipoDoc": "CC",
-    "cc": "1143850874",
-    "contrato": "LABORAL",
-    "eps": "SOS"
-  },
-  {
-    "cod": "39",
-    "nombre": "Irma Milena Cuadrado Olarte",
-    "tipoDoc": "CC",
-    "cc": "31448620",
-    "contrato": "LABORAL",
-    "eps": "EPS SURA"
-  },
-  {
-    "cod": "47",
-    "nombre": "Karol Andrea Rosero Diaz",
-    "tipoDoc": "CC",
-    "cc": "1085949808",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "64",
-    "nombre": "Karol Valentina Laguna Cruz",
-    "tipoDoc": "CC",
-    "cc": "1006118399",
-    "contrato": "LABORAL",
-    "eps": "SALUD TOTAL"
-  },
-  {
-    "cod": "62",
-    "nombre": "Liliana Herrera Porras",
-    "tipoDoc": "CC",
-    "cc": "31534745",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "43",
-    "nombre": "Lina Katherine Sabogal Gomez",
-    "tipoDoc": "CC",
-    "cc": "1060359496",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "1",
-    "nombre": "Luz Karime Jurado Conde",
-    "tipoDoc": "CC",
-    "cc": "1107510916",
-    "contrato": "LABORAL",
-    "eps": "COMFENALCO"
-  },
-  {
-    "cod": "38",
-    "nombre": "Maria Emilsen Caracas Mina",
-    "tipoDoc": "CC",
-    "cc": "25332023",
-    "contrato": "LABORAL",
-    "eps": "SOS"
-  },
-  {
-    "cod": "66",
-    "nombre": "Maria Eugenia Muñoz Ceballos",
-    "tipoDoc": "CC",
-    "cc": "31530269",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "35",
-    "nombre": "Maria Eugenia Velasquez Alvarez",
-    "tipoDoc": "CC",
-    "cc": "34566275",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "63",
-    "nombre": "Martha Liliana Jimenez",
-    "tipoDoc": "CC",
-    "cc": "29765736",
-    "contrato": "LABORAL",
-    "eps": "SOS"
-  },
-  {
-    "cod": "44",
-    "nombre": "Mauren Albenis Rodriguez Ospina",
-    "tipoDoc": "CC",
-    "cc": "1112461212",
-    "contrato": "LABORAL",
-    "eps": "SOS"
-  },
-  {
-    "cod": "42",
-    "nombre": "Miguel Angel Cano Silva",
-    "tipoDoc": "CC",
-    "cc": "1112478220",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "41",
-    "nombre": "Miriam Arias Gomez",
-    "tipoDoc": "CC",
-    "cc": "34054447",
-    "contrato": "LABORAL",
-    "eps": "NUEVA EPS"
-  },
-  {
-    "cod": "65",
-    "nombre": "Nanyibeth Mosquera Caicedo",
-    "tipoDoc": "CC",
-    "cc": "1143946782",
-    "contrato": "LABORAL",
-    "eps": "EPS SURA"
-  },
-  {
-    "cod": "71",
-    "nombre": "Rosa Nubia Rua",
-    "tipoDoc": "CC",
-    "cc": "31534312",
-    "contrato": "LABORAL",
-    "eps": "COMFENALCO"
-  },
-  {
-    "cod": "54",
-    "nombre": "Sandra Consuelo Agredo Cifuentes",
-    "tipoDoc": "CC",
-    "cc": "66912022",
-    "contrato": "LABORAL",
-    "eps": "SOS"
-  },
-  {
-    "cod": "46",
-    "nombre": "Silvia Nith Belalcazar",
-    "tipoDoc": "CC",
-    "cc": "34385166",
-    "contrato": "LABORAL",
-    "eps": "COMFENALCO"
-  },
-  {
-    "cod": "59",
-    "nombre": "Sonia Cruz Chavez",
-    "tipoDoc": "CC",
-    "cc": "66987490",
-    "contrato": "LABORAL",
-    "eps": "SALUD TOTAL"
-  },
-  {
-    "cod": "30",
-    "nombre": "Yeimi Alejandra Montilla Rojas",
-    "tipoDoc": "CC",
-    "cc": "1112483777",
-    "contrato": "LABORAL",
-    "eps": "N/A"
-  },
-  {
-    "cod": "49",
-    "nombre": "Yeimi Johanna Zuluaga Lopez",
-    "tipoDoc": "CC",
-    "cc": "31309334",
-    "contrato": "LABORAL",
-    "eps": "SOS"
-  },
-  {
-    "cod": "40",
-    "nombre": "Yeiner Yandy Giraldo",
-    "tipoDoc": "CC",
-    "cc": "16839819",
-    "contrato": "LABORAL",
-    "eps": "EPS SURA"
-  }
+  {"cod":"34","nombre":"Adriana Yazmith Babativa Gil","tipoDoc":"CC","cc":"28820940","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"32","nombre":"Alejandro Sanchez Lopez","tipoDoc":"CC","cc":"16845295","contrato":"LABORAL","eps":"EPS SURA"},
+  {"cod":"45","nombre":"Ana Milena Gomez","tipoDoc":"CC","cc":"60393202","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"50","nombre":"Bety Maritza Ortiz Valencia","tipoDoc":"CC","cc":"1089542622","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"31","nombre":"Bladimir Olmos Echeverry","tipoDoc":"CC","cc":"16847161","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"6","nombre":"Diana Mileydi Ordoñez Benitez","tipoDoc":"CC","cc":"1143962107","contrato":"LABORAL","eps":"EPS SURA"},
+  {"cod":"70","nombre":"Doris Rodriguez Chavez","tipoDoc":"CC","cc":"31525311","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"29","nombre":"Edwin Vivas Campo","tipoDoc":"CC","cc":"1112479499","contrato":"LABORAL","eps":"COMFENALCO"},
+  {"cod":"33","nombre":"Harry Fernando Murillo Mosquera","tipoDoc":"CC","cc":"1143850874","contrato":"LABORAL","eps":"SOS"},
+  {"cod":"39","nombre":"Irma Milena Cuadrado Olarte","tipoDoc":"CC","cc":"31448620","contrato":"LABORAL","eps":"EPS SURA"},
+  {"cod":"47","nombre":"Karol Andrea Rosero Diaz","tipoDoc":"CC","cc":"1085949808","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"64","nombre":"Karol Valentina Laguna Cruz","tipoDoc":"CC","cc":"1006118399","contrato":"LABORAL","eps":"SALUD TOTAL"},
+  {"cod":"62","nombre":"Liliana Herrera Porras","tipoDoc":"CC","cc":"31534745","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"43","nombre":"Lina Katherine Sabogal Gomez","tipoDoc":"CC","cc":"1060359496","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"1","nombre":"Luz Karime Jurado Conde","tipoDoc":"CC","cc":"1107510916","contrato":"LABORAL","eps":"COMFENALCO"},
+  {"cod":"38","nombre":"Maria Emilsen Caracas Mina","tipoDoc":"CC","cc":"25332023","contrato":"LABORAL","eps":"SOS"},
+  {"cod":"66","nombre":"Maria Eugenia Muñoz Ceballos","tipoDoc":"CC","cc":"31530269","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"35","nombre":"Maria Eugenia Velasquez Alvarez","tipoDoc":"CC","cc":"34566275","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"63","nombre":"Martha Liliana Jimenez","tipoDoc":"CC","cc":"29765736","contrato":"LABORAL","eps":"SOS"},
+  {"cod":"44","nombre":"Mauren Albenis Rodriguez Ospina","tipoDoc":"CC","cc":"1112461212","contrato":"LABORAL","eps":"SOS"},
+  {"cod":"42","nombre":"Miguel Angel Cano Silva","tipoDoc":"CC","cc":"1112478220","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"41","nombre":"Miriam Arias Gomez","tipoDoc":"CC","cc":"34054447","contrato":"LABORAL","eps":"NUEVA EPS"},
+  {"cod":"65","nombre":"Nanyibeth Mosquera Caicedo","tipoDoc":"CC","cc":"1143946782","contrato":"LABORAL","eps":"EPS SURA"},
+  {"cod":"71","nombre":"Rosa Nubia Rua","tipoDoc":"CC","cc":"31534312","contrato":"LABORAL","eps":"COMFENALCO"},
+  {"cod":"54","nombre":"Sandra Consuelo Agredo Cifuentes","tipoDoc":"CC","cc":"66912022","contrato":"LABORAL","eps":"SOS"},
+  {"cod":"46","nombre":"Silvia Nith Belalcazar","tipoDoc":"CC","cc":"34385166","contrato":"LABORAL","eps":"COMFENALCO"},
+  {"cod":"59","nombre":"Sonia Cruz Chavez","tipoDoc":"CC","cc":"66987490","contrato":"LABORAL","eps":"SALUD TOTAL"},
+  {"cod":"30","nombre":"Yeimi Alejandra Montilla Rojas","tipoDoc":"CC","cc":"1112483777","contrato":"LABORAL","eps":"N/A"},
+  {"cod":"49","nombre":"Yeimi Johanna Zuluaga Lopez","tipoDoc":"CC","cc":"31309334","contrato":"LABORAL","eps":"SOS"},
+  {"cod":"40","nombre":"Yeiner Yandy Giraldo","tipoDoc":"CC","cc":"16839819","contrato":"LABORAL","eps":"EPS SURA"}
 ];
 
 async function loadEmpleados() {
-  // Cargar lista embebida inmediatamente (siempre funciona)
-  empleados = EMPLEADOS_EMBEBIDOS.slice().sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
-  const sel = document.getElementById('nombreSelect');
-  sel.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
-  empleados.forEach((e, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = e.nombre;
-    sel.appendChild(opt);
-  });
-  
-  // Intentar actualizar desde el servidor en background (si funciona, mejor; si no, ya tenemos la lista)
+  empleados = EMPLEADOS_EMBEBIDOS.slice();
+
+  // Intentar actualizar desde el servidor en background
   try {
     const json = await new Promise((resolve, reject) => {
       const callbackName = 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -639,40 +463,144 @@ async function loadEmpleados() {
         resolve(data);
       };
       script.src = SCRIPT_URL + '?callback=' + callbackName + '&t=' + Date.now();
-      script.onerror = () => { 
-        clearTimeout(timeout); 
+      script.onerror = () => {
+        clearTimeout(timeout);
         try { document.body.removeChild(script); } catch(e) {}
-        reject(new Error('Script error')); 
+        reject(new Error('Script error'));
       };
       document.body.appendChild(script);
     });
-    
+
     if (json && json.status === 'ok' && json.empleados && json.empleados.length > 0) {
       empleados = json.empleados;
-      const sel2 = document.getElementById('nombreSelect');
-      const currentValue = sel2.value;
-      sel2.innerHTML = '<option value="" disabled selected>Selecciona tu nombre...</option>';
-      empleados.forEach((e, i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = e.nombre;
-        sel2.appendChild(opt);
-      });
-      if (currentValue) sel2.value = currentValue;
     }
   } catch(e) {
-    // Silencioso - ya tenemos la lista embebida funcionando
+    // Silencioso - usamos la lista embebida
   }
 }
 
-function autoFillEmployee(idx) {
-  if (idx === '' || idx === null) return;
-  selectedEmployee = empleados[parseInt(idx)];
+// Búsqueda por cédula
+function searchByCedula(query) {
+  const resultsEl = document.getElementById('cedulaResults');
+  const cleaned = (query || '').replace(/\D/g, '');
+
+  if (cleaned.length < 2) {
+    resultsEl.classList.remove('show');
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  const matches = empleados.filter(e => (e.cc || '').includes(cleaned));
+
+  if (matches.length === 0) {
+    resultsEl.innerHTML = '<div class="cedula-empty">No se encontraron coincidencias. Verifica el número o comunícate con el área administrativa.</div>';
+    resultsEl.classList.add('show');
+    return;
+  }
+
+  // Mostrar máximo 6 resultados por privacidad y rendimiento
+  const visibleMatches = matches.slice(0, 6);
+  resultsEl.innerHTML = visibleMatches.map((e, idx) => {
+    const realIdx = empleados.indexOf(e);
+    return '<div class="cedula-result-item" tabindex="0" role="button" data-idx="' + realIdx + '">' +
+      '<span class="cc-num">' + e.cc + '</span>' +
+      '<span class="cc-pick">Esta es la mía</span>' +
+    '</div>';
+  }).join('');
+
+  if (matches.length > 6) {
+    resultsEl.innerHTML += '<div class="cedula-empty">Hay ' + (matches.length - 6) + ' resultados más. Digita más números para refinar.</div>';
+  }
+
+  // Bind clicks
+  resultsEl.querySelectorAll('.cedula-result-item').forEach(item => {
+    item.addEventListener('click', () => selectEmployee(parseInt(item.dataset.idx)));
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectEmployee(parseInt(item.dataset.idx));
+      }
+    });
+  });
+
+  resultsEl.classList.add('show');
+}
+
+function selectEmployee(idx) {
+  if (isNaN(idx) || idx < 0 || idx >= empleados.length) return;
+  selectedEmployee = empleados[idx];
+
+  // Mostrar confirmación con nombre
+  document.getElementById('confirmedName').textContent = selectedEmployee.nombre;
+  document.getElementById('cedulaConfirmed').classList.add('show');
+
+  // Ocultar resultados
+  document.getElementById('cedulaResults').classList.remove('show');
+
+  // Bloquear input y poner cédula
+  const input = document.getElementById('cedulaInput');
+  input.value = selectedEmployee.cc;
+  input.disabled = true;
+
+  // Llenar info adicional
   document.getElementById('empCC').textContent = selectedEmployee.cc || '—';
   document.getElementById('empEPS').textContent = selectedEmployee.eps || '—';
   document.getElementById('empContrato').textContent = selectedEmployee.contrato || '—';
   document.getElementById('empCod').textContent = selectedEmployee.cod || '—';
   document.getElementById('empInfoRow').style.display = 'grid';
+
+  updateProgress();
+}
+
+function clearSelection() {
+  selectedEmployee = null;
+  document.getElementById('cedulaConfirmed').classList.remove('show');
+  document.getElementById('empInfoRow').style.display = 'none';
+  const input = document.getElementById('cedulaInput');
+  input.disabled = false;
+  input.value = '';
+  input.focus();
+  updateProgress();
+}
+
+// Tipo de permiso → mostrar/ocultar campos
+function pickTipoPermiso(value) {
+  tipoPermisoActual = value;
+
+  // Marcar radio visualmente
+  document.getElementById('opt1').classList.toggle('active', value === 'Permiso por Horas o 1 Dia');
+  document.getElementById('opt2').classList.toggle('active', value === 'Permiso por Varios Dias');
+  document.querySelector('input[name="tipopermiso"][value="' + value + '"]').checked = true;
+
+  const fechasCard = document.getElementById('fechasCard');
+  const horasCard = document.getElementById('horasCard');
+  const fechaSingleField = document.getElementById('fechaSingleField');
+  const fechaRangeField = document.getElementById('fechaRangeField');
+  const fechasLabel = document.getElementById('fechasLabel');
+
+  if (value === 'Permiso por Horas o 1 Dia') {
+    // Mostrar: fecha única + horas
+    fechasCard.classList.remove('hidden');
+    horasCard.classList.remove('hidden');
+    fechaSingleField.style.display = 'block';
+    fechaRangeField.style.display = 'none';
+    fechasLabel.innerHTML = '📅 Fecha del Permiso';
+    // Limpiar campos del otro modo
+    document.getElementById('fechaini_range').value = '';
+    document.getElementById('fechafin_range').value = '';
+  } else if (value === 'Permiso por Varios Dias') {
+    // Mostrar: rango de fechas, ocultar horas
+    fechasCard.classList.remove('hidden');
+    horasCard.classList.add('hidden');
+    fechaSingleField.style.display = 'none';
+    fechaRangeField.style.display = 'block';
+    fechasLabel.innerHTML = '📅 Fechas del Permiso';
+    // Limpiar campos del otro modo
+    document.getElementById('fechaini_single').value = '';
+    document.getElementById('horaini').value = '';
+    document.getElementById('horafin').value = '';
+  }
+
   updateProgress();
 }
 
@@ -693,32 +621,40 @@ function checkMotivoMedico() {
   updateProgress();
 }
 
-// Progress
+// Progress dinámico según tipo de permiso
 function updateProgress() {
-  let f = 0;
-  if (document.getElementById('acepto').checked) f++;
-  if (document.getElementById('nombreSelect').value !== '') f++;
-  if (document.querySelector('input[name="tipopermiso"]:checked')) f++;
-  if (document.getElementById('fechaini').value) f++;
-  if (document.getElementById('fechafin').value) f++;
-  if (document.getElementById('horaini').value) f++;
-  if (document.getElementById('horafin').value) f++;
-  if (document.getElementById('motivo').value) f++;
-  if (document.getElementById('descripcion').value.trim()) f++;
-  document.getElementById('progressFill').style.width = Math.round(f / 9 * 100) + '%';
+  let total = 0;
+  let filled = 0;
+
+  // Comunes a ambos tipos
+  total++; if (document.getElementById('acepto').checked) filled++;
+  total++; if (selectedEmployee) filled++;
+  total++; if (tipoPermisoActual) filled++;
+  total++; if (document.getElementById('motivo').value) filled++;
+  total++; if (document.getElementById('descripcion').value.trim()) filled++;
+
+  // Dependientes del tipo de permiso
+  if (tipoPermisoActual === 'Permiso por Horas o 1 Dia') {
+    total += 3;
+    if (document.getElementById('fechaini_single').value) filled++;
+    if (document.getElementById('horaini').value) filled++;
+    if (document.getElementById('horafin').value) filled++;
+  } else if (tipoPermisoActual === 'Permiso por Varios Dias') {
+    total += 2;
+    if (document.getElementById('fechaini_range').value) filled++;
+    if (document.getElementById('fechafin_range').value) filled++;
+  } else {
+    // Sin tipo: añadir peso mínimo
+    total += 2;
+  }
+
+  document.getElementById('progressFill').style.width = Math.round(filled / total * 100) + '%';
 }
 
 document.querySelectorAll('input, select, textarea').forEach(el => {
   el.addEventListener('change', updateProgress);
   el.addEventListener('input', updateProgress);
 });
-
-function pickRadio(a, b, n, v) {
-  document.getElementById(a).classList.add('active');
-  document.getElementById(b).classList.remove('active');
-  document.querySelector('input[name="' + n + '"][value="' + v + '"]').checked = true;
-  updateProgress();
-}
 
 function handleFile(input) {
   const hint = document.getElementById('uploadHint');
@@ -732,7 +668,6 @@ function handleFile(input) {
   }
 }
 
-// Convert file to base64
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -755,8 +690,15 @@ function resetForm() {
   document.getElementById('uploadArea').style.borderStyle = '';
   document.getElementById('uploadRequired').style.display = 'none';
   document.getElementById('empInfoRow').style.display = 'none';
+  document.getElementById('cedulaConfirmed').classList.remove('show');
+  document.getElementById('cedulaResults').classList.remove('show');
+  document.getElementById('cedulaInput').disabled = false;
+  document.getElementById('cedulaInput').value = '';
+  document.getElementById('fechasCard').classList.add('hidden');
+  document.getElementById('horasCard').classList.add('hidden');
   document.getElementById('progressFill').style.width = '0%';
   selectedEmployee = null;
+  tipoPermisoActual = null;
 }
 
 // Submit
@@ -769,22 +711,48 @@ document.getElementById('permisoForm').addEventListener('submit', async function
     err.textContent = '⚠️ Debes leer y aceptar las instrucciones y la política de confidencialidad para continuar.';
     err.style.display = 'block'; return;
   }
-  if (!document.getElementById('nombreSelect').value) {
-    err.textContent = '⚠️ Por favor selecciona tu nombre de la lista.';
+  if (!selectedEmployee) {
+    err.textContent = '⚠️ Por favor digita tu cédula y selecciona la coincidencia que corresponde a tu identificación.';
     err.style.display = 'block'; return;
   }
-  if (!document.querySelector('input[name="tipopermiso"]:checked')) {
-    err.textContent = '⚠️ Selecciona el tipo de permiso (horas o varios días).';
+  if (!tipoPermisoActual) {
+    err.textContent = '⚠️ Selecciona el tipo de permiso (por horas o por varios días).';
     err.style.display = 'block'; return;
   }
-  if (!document.getElementById('fechaini').value || !document.getElementById('fechafin').value) {
-    err.textContent = '⚠️ Indica las fechas de salida y reingreso del permiso.';
-    err.style.display = 'block'; return;
+
+  // Variables que enviaremos
+  let fechaini = '', fechafin = '', horaini = '', horafin = '';
+
+  if (tipoPermisoActual === 'Permiso por Horas o 1 Dia') {
+    fechaini = document.getElementById('fechaini_single').value;
+    fechafin = fechaini; // misma fecha
+    horaini = document.getElementById('horaini').value;
+    horafin = document.getElementById('horafin').value;
+
+    if (!fechaini) {
+      err.textContent = '⚠️ Indica la fecha del permiso.';
+      err.style.display = 'block'; return;
+    }
+    if (!horaini || !horafin) {
+      err.textContent = '⚠️ Indica las horas de salida y reingreso.';
+      err.style.display = 'block'; return;
+    }
+  } else if (tipoPermisoActual === 'Permiso por Varios Dias') {
+    fechaini = document.getElementById('fechaini_range').value;
+    fechafin = document.getElementById('fechafin_range').value;
+    horaini = '07:00';   // valor por defecto para permisos por días
+    horafin = '16:48';   // valor por defecto para permisos por días
+
+    if (!fechaini || !fechafin) {
+      err.textContent = '⚠️ Indica las fechas de salida y reingreso del permiso.';
+      err.style.display = 'block'; return;
+    }
+    if (new Date(fechafin) < new Date(fechaini)) {
+      err.textContent = '⚠️ La fecha de reingreso no puede ser anterior a la fecha de salida.';
+      err.style.display = 'block'; return;
+    }
   }
-  if (!document.getElementById('horaini').value || !document.getElementById('horafin').value) {
-    err.textContent = '⚠️ Indica las horas de salida y reingreso.';
-    err.style.display = 'block'; return;
-  }
+
   if (!document.getElementById('motivo').value) {
     err.textContent = '⚠️ Selecciona el motivo del permiso.';
     err.style.display = 'block'; return;
@@ -811,7 +779,6 @@ document.getElementById('permisoForm').addEventListener('submit', async function
   overlay.classList.add('show');
 
   try {
-    // Convert file if present
     let fileData = null, fileName = null, fileType = null;
     if (soporteFile) {
       document.getElementById('loadingText').textContent = 'Subiendo soporte a Drive...';
@@ -828,11 +795,11 @@ document.getElementById('permisoForm').addEventListener('submit', async function
       cc: emp.cc || '',
       eps: emp.eps || '',
       contrato: emp.contrato || '',
-      tipopermiso: document.querySelector('input[name="tipopermiso"]:checked').value,
-      fechaini: document.getElementById('fechaini').value,
-      fechafin: document.getElementById('fechafin').value,
-      horaini: document.getElementById('horaini').value,
-      horafin: document.getElementById('horafin').value,
+      tipopermiso: tipoPermisoActual,
+      fechaini: fechaini,
+      fechafin: fechafin,
+      horaini: horaini,
+      horafin: horafin,
       motivo: motivo,
       descripcion: document.getElementById('descripcion').value.trim(),
       fileData: fileData,
@@ -840,38 +807,38 @@ document.getElementById('permisoForm').addEventListener('submit', async function
       fileType: fileType
     };
 
-    // Submit via form to avoid CORS
+    // Submit vía form para evitar CORS
     await new Promise((resolve, reject) => {
       const iframe = document.createElement('iframe');
       iframe.name = 'submit_iframe_' + Date.now();
       iframe.style.display = 'none';
       document.body.appendChild(iframe);
-      
+
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = SCRIPT_URL;
       form.target = iframe.name;
       form.style.display = 'none';
-      
+
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = 'data';
       input.value = JSON.stringify(data);
       form.appendChild(input);
-      
+
       document.body.appendChild(form);
-      
+
       const timeout = setTimeout(() => {
         try { document.body.removeChild(form); document.body.removeChild(iframe); } catch(e) {}
         resolve();
       }, 8000);
-      
+
       iframe.onload = () => {
         clearTimeout(timeout);
         try { document.body.removeChild(form); document.body.removeChild(iframe); } catch(e) {}
         resolve();
       };
-      
+
       form.submit();
     });
 
@@ -888,6 +855,13 @@ document.getElementById('permisoForm').addEventListener('submit', async function
     err.style.display = 'block';
     btn.disabled = false;
     btn.textContent = 'Enviar Solicitud →';
+  }
+});
+
+// Cerrar resultados al hacer click afuera
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#cedulaInput') && !e.target.closest('#cedulaResults')) {
+    document.getElementById('cedulaResults').classList.remove('show');
   }
 });
 
