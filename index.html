@@ -413,36 +413,246 @@ let tipoPermisoActual = null;
 
 // Lista embebida de empleados (fallback)
 const EMPLEADOS_EMBEBIDOS = [
-  {"cod":"34","nombre":"Adriana Yazmith Babativa Gil","tipoDoc":"CC","cc":"28820940","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"32","nombre":"Alejandro Sanchez Lopez","tipoDoc":"CC","cc":"16845295","contrato":"LABORAL","eps":"EPS SURA"},
-  {"cod":"45","nombre":"Ana Milena Gomez","tipoDoc":"CC","cc":"60393202","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"50","nombre":"Bety Maritza Ortiz Valencia","tipoDoc":"CC","cc":"1089542622","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"31","nombre":"Bladimir Olmos Echeverry","tipoDoc":"CC","cc":"16847161","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"6","nombre":"Diana Mileydi Ordoñez Benitez","tipoDoc":"CC","cc":"1143962107","contrato":"LABORAL","eps":"EPS SURA"},
-  {"cod":"70","nombre":"Doris Rodriguez Chavez","tipoDoc":"CC","cc":"31525311","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"29","nombre":"Edwin Vivas Campo","tipoDoc":"CC","cc":"1112479499","contrato":"LABORAL","eps":"COMFENALCO"},
-  {"cod":"33","nombre":"Harry Fernando Murillo Mosquera","tipoDoc":"CC","cc":"1143850874","contrato":"LABORAL","eps":"SOS"},
-  {"cod":"39","nombre":"Irma Milena Cuadrado Olarte","tipoDoc":"CC","cc":"31448620","contrato":"LABORAL","eps":"EPS SURA"},
-  {"cod":"47","nombre":"Karol Andrea Rosero Diaz","tipoDoc":"CC","cc":"1085949808","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"64","nombre":"Karol Valentina Laguna Cruz","tipoDoc":"CC","cc":"1006118399","contrato":"LABORAL","eps":"SALUD TOTAL"},
-  {"cod":"62","nombre":"Liliana Herrera Porras","tipoDoc":"CC","cc":"31534745","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"43","nombre":"Lina Katherine Sabogal Gomez","tipoDoc":"CC","cc":"1060359496","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"1","nombre":"Luz Karime Jurado Conde","tipoDoc":"CC","cc":"1107510916","contrato":"LABORAL","eps":"COMFENALCO"},
-  {"cod":"38","nombre":"Maria Emilsen Caracas Mina","tipoDoc":"CC","cc":"25332023","contrato":"LABORAL","eps":"SOS"},
-  {"cod":"66","nombre":"Maria Eugenia Muñoz Ceballos","tipoDoc":"CC","cc":"31530269","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"35","nombre":"Maria Eugenia Velasquez Alvarez","tipoDoc":"CC","cc":"34566275","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"63","nombre":"Martha Liliana Jimenez","tipoDoc":"CC","cc":"29765736","contrato":"LABORAL","eps":"SOS"},
-  {"cod":"44","nombre":"Mauren Albenis Rodriguez Ospina","tipoDoc":"CC","cc":"1112461212","contrato":"LABORAL","eps":"SOS"},
-  {"cod":"42","nombre":"Miguel Angel Cano Silva","tipoDoc":"CC","cc":"1112478220","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"41","nombre":"Miriam Arias Gomez","tipoDoc":"CC","cc":"34054447","contrato":"LABORAL","eps":"NUEVA EPS"},
-  {"cod":"65","nombre":"Nanyibeth Mosquera Caicedo","tipoDoc":"CC","cc":"1143946782","contrato":"LABORAL","eps":"EPS SURA"},
-  {"cod":"71","nombre":"Rosa Nubia Rua","tipoDoc":"CC","cc":"31534312","contrato":"LABORAL","eps":"COMFENALCO"},
-  {"cod":"54","nombre":"Sandra Consuelo Agredo Cifuentes","tipoDoc":"CC","cc":"66912022","contrato":"LABORAL","eps":"SOS"},
-  {"cod":"46","nombre":"Silvia Nith Belalcazar","tipoDoc":"CC","cc":"34385166","contrato":"LABORAL","eps":"COMFENALCO"},
-  {"cod":"59","nombre":"Sonia Cruz Chavez","tipoDoc":"CC","cc":"66987490","contrato":"LABORAL","eps":"SALUD TOTAL"},
-  {"cod":"30","nombre":"Yeimi Alejandra Montilla Rojas","tipoDoc":"CC","cc":"1112483777","contrato":"LABORAL","eps":"N/A"},
-  {"cod":"49","nombre":"Yeimi Johanna Zuluaga Lopez","tipoDoc":"CC","cc":"31309334","contrato":"LABORAL","eps":"SOS"},
-  {"cod":"40","nombre":"Yeiner Yandy Giraldo","tipoDoc":"CC","cc":"16839819","contrato":"LABORAL","eps":"EPS SURA"}
+  {
+    "cod": "34",
+    "nombre": "Adriana Yazmith Babativa Gil",
+    "tipoDoc": "CC",
+    "cc": "28820940",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "32",
+    "nombre": "Alejandro Sanchez Lopez",
+    "tipoDoc": "CC",
+    "cc": "16845295",
+    "contrato": "LABORAL",
+    "eps": "EPS SURA"
+  },
+  {
+    "cod": "45",
+    "nombre": "Ana Milena Gomez",
+    "tipoDoc": "CC",
+    "cc": "60393202",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "50",
+    "nombre": "Bety Maritza Ortiz Valencia",
+    "tipoDoc": "CC",
+    "cc": "1089542622",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "31",
+    "nombre": "Bladimir Olmos Echeverry",
+    "tipoDoc": "CC",
+    "cc": "16847161",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "6",
+    "nombre": "Diana Mileydi Ordoñez Benitez",
+    "tipoDoc": "CC",
+    "cc": "1143962107",
+    "contrato": "LABORAL",
+    "eps": "EPS SURA"
+  },
+  {
+    "cod": "70",
+    "nombre": "Doris Rodriguez Chavez",
+    "tipoDoc": "CC",
+    "cc": "31525311",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "29",
+    "nombre": "Edwin Vivas Campo",
+    "tipoDoc": "CC",
+    "cc": "1112479499",
+    "contrato": "LABORAL",
+    "eps": "COMFENALCO"
+  },
+  {
+    "cod": "33",
+    "nombre": "Harry Fernando Murillo Mosquera",
+    "tipoDoc": "CC",
+    "cc": "1143850874",
+    "contrato": "LABORAL",
+    "eps": "SOS"
+  },
+  {
+    "cod": "39",
+    "nombre": "Irma Milena Cuadrado Olarte",
+    "tipoDoc": "CC",
+    "cc": "31448620",
+    "contrato": "LABORAL",
+    "eps": "EPS SURA"
+  },
+  {
+    "cod": "47",
+    "nombre": "Karol Andrea Rosero Diaz",
+    "tipoDoc": "CC",
+    "cc": "1085949808",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "64",
+    "nombre": "Karol Valentina Laguna Cruz",
+    "tipoDoc": "CC",
+    "cc": "1006118399",
+    "contrato": "LABORAL",
+    "eps": "SALUD TOTAL"
+  },
+  {
+    "cod": "62",
+    "nombre": "Liliana Herrera Porras",
+    "tipoDoc": "CC",
+    "cc": "31534745",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "43",
+    "nombre": "Lina Katherine Sabogal Gomez",
+    "tipoDoc": "CC",
+    "cc": "1060359496",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "1",
+    "nombre": "Luz Karime Jurado Conde",
+    "tipoDoc": "CC",
+    "cc": "1107510916",
+    "contrato": "LABORAL",
+    "eps": "COMFENALCO"
+  },
+  {
+    "cod": "38",
+    "nombre": "Maria Emilsen Caracas Mina",
+    "tipoDoc": "CC",
+    "cc": "25332023",
+    "contrato": "LABORAL",
+    "eps": "SOS"
+  },
+  {
+    "cod": "66",
+    "nombre": "Maria Eugenia Muñoz Ceballos",
+    "tipoDoc": "CC",
+    "cc": "31530269",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "35",
+    "nombre": "Maria Eugenia Velasquez Alvarez",
+    "tipoDoc": "CC",
+    "cc": "34566275",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "63",
+    "nombre": "Martha Liliana Jimenez",
+    "tipoDoc": "CC",
+    "cc": "29765736",
+    "contrato": "LABORAL",
+    "eps": "SOS"
+  },
+  {
+    "cod": "44",
+    "nombre": "Mauren Albenis Rodriguez Ospina",
+    "tipoDoc": "CC",
+    "cc": "1112461212",
+    "contrato": "LABORAL",
+    "eps": "SOS"
+  },
+  {
+    "cod": "42",
+    "nombre": "Miguel Angel Cano Silva",
+    "tipoDoc": "CC",
+    "cc": "1112478220",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "41",
+    "nombre": "Miriam Arias Gomez",
+    "tipoDoc": "CC",
+    "cc": "34054447",
+    "contrato": "LABORAL",
+    "eps": "NUEVA EPS"
+  },
+  {
+    "cod": "65",
+    "nombre": "Nanyibeth Mosquera Caicedo",
+    "tipoDoc": "CC",
+    "cc": "1143946782",
+    "contrato": "LABORAL",
+    "eps": "EPS SURA"
+  },
+  {
+    "cod": "71",
+    "nombre": "Rosa Nubia Rua",
+    "tipoDoc": "CC",
+    "cc": "31534312",
+    "contrato": "LABORAL",
+    "eps": "COMFENALCO"
+  },
+  {
+    "cod": "54",
+    "nombre": "Sandra Consuelo Agredo Cifuentes",
+    "tipoDoc": "CC",
+    "cc": "66912022",
+    "contrato": "LABORAL",
+    "eps": "SOS"
+  },
+  {
+    "cod": "46",
+    "nombre": "Silvia Nith Belalcazar",
+    "tipoDoc": "CC",
+    "cc": "34385166",
+    "contrato": "LABORAL",
+    "eps": "COMFENALCO"
+  },
+  {
+    "cod": "59",
+    "nombre": "Sonia Cruz Chavez",
+    "tipoDoc": "CC",
+    "cc": "66987490",
+    "contrato": "LABORAL",
+    "eps": "SALUD TOTAL"
+  },
+  {
+    "cod": "30",
+    "nombre": "Yeimi Alejandra Montilla Rojas",
+    "tipoDoc": "CC",
+    "cc": "1112483777",
+    "contrato": "LABORAL",
+    "eps": "N/A"
+  },
+  {
+    "cod": "49",
+    "nombre": "Yeimi Johanna Zuluaga Lopez",
+    "tipoDoc": "CC",
+    "cc": "31309334",
+    "contrato": "LABORAL",
+    "eps": "SOS"
+  },
+  {
+    "cod": "40",
+    "nombre": "Yeiner Yandy Giraldo",
+    "tipoDoc": "CC",
+    "cc": "16839819",
+    "contrato": "LABORAL",
+    "eps": "EPS SURA"
+  }
 ];
 
 async function loadEmpleados() {
